@@ -69,6 +69,5 @@ class FollowViewSet(mixins.CreateModelMixin,
             return Response(status=status.HTTP_400_BAD_REQUEST)
         instance = serializer.save(user=self.request.user,
                                    following=follow_user)
-        # Возвращаем ответ с данными созданной подписки, используя сериализатор
         return Response(FollowSerializer(instance).data,
                         status=status.HTTP_201_CREATED)
