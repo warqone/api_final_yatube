@@ -1,13 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, filters, status, mixins
-from rest_framework.response import Response
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
 
 from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (CommentSerializer, GroupSerializer,
-                             PostSerializer, FollowSerializer)
-from posts.models import Comment, Group, Post, Follow
+from api.serializers import (CommentSerializer, FollowSerializer,
+                             GroupSerializer, PostSerializer)
+from posts.models import Comment, Follow, Group, Post
 
 User = get_user_model()
 
@@ -63,11 +64,14 @@ class FollowViewSet(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         follow_user_username = self.request.data.get('following')
-        follow_user = User.objects.get(username=follow_user_username)
-        if Follow.objects.filter(user=self.request.user,
-                                 following=follow_user).exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        instance = serializer.save(user=self.request.user,
-                                   following=follow_user)
-        return Response(FollowSerializer(instance).data,
-                        status=status.HTTP_201_CREATED)
+        try:
+            follow_user = User.objects.get(username=follow_user_username)
+            if self.request.user == follow_user:
+                raise ValidationError(
+                    'Невозможно оформить подписку на самого себя.'
+                )
+            Follow.objects.get(user=self.request.user, following=follow_user)
+            raise ValidationError('Вы уже подписаны на этого пользователя.')
+        except Follow.DoesNotExist:
+            serializer.save(user=self.request.user, following=follow_user)
+            return Response(status=status.HTTP_201_CREATED)

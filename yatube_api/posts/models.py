@@ -14,6 +14,10 @@ class Group(models.Model):
     def __str__(self):
         return self.title[:LETTER_LIMIT]
 
+    class Meta:
+        verbose_name = 'группа'
+        verbose_name_plural = 'Группы'
+
 
 class Post(models.Model):
     text = models.TextField('Текст поста')
@@ -40,6 +44,8 @@ class Post(models.Model):
     )
 
     class Meta:
+        verbose_name = 'пост'
+        verbose_name_plural = 'Посты'
         default_related_name = 'posts'
 
     def __str__(self):
@@ -63,6 +69,8 @@ class Comment(models.Model):
     )
 
     class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
 
     def __str__(self):
@@ -82,6 +90,10 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Подписка'
     )
+
+    class Meta:
+        verbose_name = 'подписки'
+        verbose_name = 'Подписки'
 
     def __str__(self):
         return f'{self.user} подписан на: {self.following}.'
