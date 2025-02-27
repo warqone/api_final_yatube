@@ -20,11 +20,11 @@ class GroupAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'author', 'post', 'text', 'created')
-    search_fields = ('author', 'post')
+    search_fields = ('post__title',)
     list_filter = ('created',)
 
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('user', 'following')
-    search_fields = ('user',)
+    search_fields = ('user__username', 'following__username')
