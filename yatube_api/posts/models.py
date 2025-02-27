@@ -11,12 +11,12 @@ class Group(models.Model):
     slug = models.SlugField('Слаг группы', unique=True)
     description = models.TextField('Описание группы')
 
-    def __str__(self):
-        return self.title[:LETTER_LIMIT]
-
     class Meta:
         verbose_name = 'группа'
         verbose_name_plural = 'Группы'
+
+    def __str__(self):
+        return self.title[:LETTER_LIMIT]
 
 
 class Post(models.Model):
@@ -47,6 +47,7 @@ class Post(models.Model):
         verbose_name = 'пост'
         verbose_name_plural = 'Посты'
         default_related_name = 'posts'
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return f'Публикация от {self.author}: {self.text[:LETTER_LIMIT]}'
@@ -94,6 +95,12 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'подписки'
         verbose_name = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'following'],
+                name='unique_follow'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user} подписан на: {self.following}.'
